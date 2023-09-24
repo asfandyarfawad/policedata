@@ -3,54 +3,73 @@ US police data analysis in which peoples who are inspected by police.
 
 import pandas as pd
 
-import numpy as np
+import seaborn as sns
 
 import matplotlib.pyplot as plt
 
-import seaborn as sns
+police = pd.read_csv('police.csv')
+
+* first we clean the data
+
+sns.heatmap(police.isnull(),cbar=False)
+
+police.info()
+
+police.columns
+
+police.drop(['county_name','search_type'], axis=1, inplace=True)
+
+police = police.dropna(axis=0)
+
+sns.heatmap(police.isnull(),cbar=False)
+
+police.head()
+
+gender = police.groupby(by = ['driver_gender', 'search_conducted'])
 
 
-sns.set()
 
-df = pd.read_csv("wnba.csv")
+gender.driver_race.count()
 
-df.corr()['PTS'].sort_values()
+* "Males are stopped for searches more frequently than females."
 
-round(df['MIN'].value_counts(bins=5,normalize=True)*100,2).sort_index()
 
-population_mean = df['PTS'].mean()
+* now we transform the "search_conducted" column
 
-min_1 = df[df['MIN']<= 213.2]
-min_2 = df[df['MIN'].between(213.2, 414.4)]
-min_3 = df[df['MIN'].between(414.4,615.6 )]
-min_4 = df[df['MIN'].between(615.6,816.8 )]
-min_5 = df[df['MIN'] >= 816.81]
+def trans_search(v):
+    if v== False:
+        return 'not searched'
+    else:
+        return 'searched'
 
-proportional_sampling_means = []
+police['search_conducted']=police['search_conducted'].apply(func = trans_search)
 
-for i in range(100):
-    sample_min_1 = min_1["PTS"].sample(4, random_state = i)
-    sample_min_2 = min_2["PTS"].sample(5, random_state = i)
-    sample_min_3 = min_3["PTS"].sample(3, random_state = i)
-    sample_min_4 = min_4["PTS"].sample(4, random_state = i)
-    sample_min_5 = min_5["PTS"].sample(4, random_state = i)
-    final_sample = pd.concat([sample_min_1, sample_min_2, sample_min_3, sample_min_4, sample_min_5])
-    mean = final_sample.mean()
-    proportional_sampling_means.append(mean)
+* now the "search_conducted" column is converted to more representable value
 
-plt.scatter(range(1,101), proportional_sampling_means)
-plt.ylim(100,350)
-plt.axhline(population_mean, color = "red")
+police
+
+
+plt.figure(figsize=(5, 4))
+sns.countplot(x='driver_gender', hue='search_conducted', data=police)
+
+
+plt.xlabel('Search Conducted')
+plt.ylabel('Count')
+plt.title('Search Conducted by Driver Gender')
+
 
 plt.show()
 
+police['violation_raw']
 
-df['PTS'].median()
+value_counts = police['violation_raw'].value_counts()
 
-plt.scatter(range(1,101), proportional_sampling_means)
-plt.ylim(50,350)
-plt.axhline(96, color = "red")
-plt.axhline(217, color = "red")
+# Plot the pie chart
+plt.figure(figsize=(10, 12))
+plt.pie(value_counts, labels=value_counts.index, autopct='%1.1f%%', startangle=180)
+plt.title('Distribution of Violations')
+plt.tight_layout()
 
+# Display the plot
 plt.show()
 
