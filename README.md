@@ -1,10 +1,15 @@
 # policedata
 US police data analysis in which peoples who are inspected by police.
-print("saad")
+
 import pandas as pd
+
 import numpy as np
+
 import matplotlib.pyplot as plt
+
 import seaborn as sns
+
+
 sns.set()
 
 df = pd.read_csv("wnba.csv")
